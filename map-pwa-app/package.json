@@ -1,0 +1,34 @@
+{
+  "name": "map-pwa-app",
+  "version": "1.0.0",
+  "description": "A Progressive Web App featuring a map interface, compatible with Android.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "serve public",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "keywords": [
+    "PWA",
+    "map",
+    "android",
+    "geolocation"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "leaflet": "^1.7.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1",
+    "jest": "^27.0.6"
+  },
+  "homepage": ".",
+  "browserslist": [
+    "> 0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
+}

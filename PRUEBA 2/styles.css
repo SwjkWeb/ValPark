@@ -1,0 +1,571 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#map {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.route-panel {
+    position: absolute;
+    top: 100px;
+    right: -350px;
+    width: 320px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.route-panel.show {
+    right: 20px;
+}
+
+.route-panel h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.route-panel input {
+    width: 100%;
+    padding: 12px 18px;
+    margin-bottom: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.route-panel input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.route-panel input::placeholder {
+    color: #999;
+}
+
+.route-panel button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.route-panel button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.info-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 15px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slideIn 0.5s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    max-width: 350px;
+}
+
+.info-panel.collapsed {
+    padding: 10px;
+    width: 55px;
+    max-width: 55px;
+}
+
+.toggle-panel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    border: none;
+    color: #667eea;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.toggle-panel-btn:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+}
+
+#panelContent {
+    transition: all 0.3s ease;
+}
+
+.info-panel.collapsed #panelContent {
+    display: none;
+}
+
+#panelLogo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.info-panel h3 {
+    color: #667eea;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.info-panel h3 img {
+    height: 24px;
+    width: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
+    animation: float 3s ease-in-out infinite;
+}
+
+.info-panel p {
+    color: #666;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.search-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.search-section h4 {
+    color: #667eea;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.search-section input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.search-section input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-section input::placeholder {
+    color: #999;
+}
+
+.search-section .search-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.search-section .search-buttons button {
+    flex: 1;
+    padding: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.search-section .search-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.controls {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.accessibility-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: none;
+    border-radius: 50%;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    z-index: 1000;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.accessibility-btn:hover {
+    transform: scale(1.15) rotate(10deg);
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+}
+
+/* Personalización de los elementos de Leaflet */
+.leaflet-control-zoom a {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 10px !important;
+    color: #667eea !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 15px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.leaflet-popup-tip {
+    display: none !important;
+}
+
+/* Animación para el marcador de usuario */
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Ocultar los marcadores y controles por defecto de leaflet-routing-machine */
+.leaflet-routing-container {
+    display: none;
+}
+
+/* Estilos para popups estilo Google Maps */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.leaflet-popup-content {
+    margin: 15px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.leaflet-popup-tip-container {
+    display: none !important;
+}
+
+/* Ocultar atribución para look más limpio */
+.leaflet-control-attribution {
+    font-size: 10px !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(5px) !important;
+    padding: 2px 5px !important;
+    border-radius: 5px !important;
+}
+
+/* Marcadores personalizados */
+.custom-user-marker,
+.custom-search-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Líneas de ruta con sombra */
+.leaflet-routing-alt {
+    display: none;
+}
+
+/* Mejorar controles de zoom nativos si se usan */
+.leaflet-bar {
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden !important;
+}
+
+.leaflet-bar a {
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    background: white !important;
+    color: #666 !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.leaflet-bar a:hover {
+    background: #f5f5f5 !important;
+    color: #4285F4 !important;
+}
+
+/* Modo accesibilidad */
+body.high-contrast #map {
+    filter: contrast(1.5) brightness(1.2);
+}
+
+body.high-contrast .search-container,
+body.high-contrast .info-panel,
+body.high-contrast .route-panel,
+body.high-contrast .control-btn {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+body.high-contrast button {
+    background: #000 !important;
+    border: 2px solid #fff !important;
+}
+
+/* Barra de usuario */
+.user-bar {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 12px 20px;
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    animation: slideInRight 0.5s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-name {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 15px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: #888;
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+}
+
+@media (max-width: 768px) {
+    .route-panel {
+        width: 90%;
+        right: -100%;
+    }
+    
+    .route-panel.show {
+        right: 5%;
+    }
+    
+    .info-panel {
+        left: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+        padding: 15px 20px;
+    }
+    
+    .user-bar {
+        top: auto;
+        bottom: 120px;
+        right: 10px;
+        left: 10px;
+        flex-direction: column;
+        padding: 15px;
+        border-radius: 15px;
+        gap: 10px;
+    }
+    
+    .user-info {
+        text-align: center;
+        width: 100%;
+    }
+    
+    .logout-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Icon styles for buttons */
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 5px;
+    transition: filter 0.3s ease;
+}
+
+.control-icon {
+    width: 20px;
+    height: 20px;
+    transition: filter 0.3s ease;
+}
+
+.control-btn img,
+.accessibility-btn img {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Cambiar iconos a blanco al hacer hover */
+.control-btn:hover img {
+    filter: brightness(0) invert(1);
+}
+
+button:hover .btn-icon {
+    filter: brightness(0) invert(1);
+}

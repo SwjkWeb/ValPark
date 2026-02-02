@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALPARK - Encuentra tu sitio</title>
+    <link rel="icon" type="image/png" href="IMG/logo.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="route-panel" id="routePanel">
+        <h3>Calcular Ruta</h3>
+        <input type="text" id="origin" placeholder="Origen (ej: Plaza del Ayuntamiento)">
+        <input type="text" id="destination" placeholder="Destino (ej: Ciudad de las Artes)">
+        <button onclick="calculateRoute()"><img src="https://api.iconify.design/mdi/map-marker.svg?color=%23667eea" alt="" class="btn-icon"> Calcular Ruta</button>
+        <button onclick="closeRoutePanel()" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); margin-top: 5px;">Cerrar</button>
+    </div>
+
+    <div class="info-panel" data-title="VALPARK" id="infoPanel">
+        <button class="toggle-panel-btn" onclick="toggleInfoPanel()" title="Colapsar/Expandir">
+            <span id="toggleArrow">◀</span>
+        </button>
+        <div id="panelContent">
+            <h3 id="appTitle">
+                <img src="IMG/logo.png" alt="VALPARK Logo">
+                VALPARK
+            </h3>
+            <p id="appSubtitle">Encuentra tu sitio</p>
+            
+            <div class="user-info" style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none;" id="userInfo">
+                <p style="margin: 0; color: #667eea; font-weight: 600;">Bienvenido, <span id="userNameDisplay"></span></p>
+                <button onclick="logout()" style="margin-top: 5px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+            </div>
+            
+            <div class="search-section">
+                <h4>Buscar ubicación</h4>
+                <input type="text" id="searchInput" placeholder="Buscar en Valencia...">
+                <div class="search-buttons">
+                    <button onclick="searchLocation()"><img src="https://api.iconify.design/mdi/magnify.svg?color=%23667eea" alt="" class="btn-icon"> Buscar</button>
+                    <button onclick="clearSearch()"><img src="https://api.iconify.design/mdi/close.svg?color=%23667eea" alt="" class="btn-icon"> Limpiar</button>
+                </div>
+            </div>
+        </div>
+        <img src="IMG/logo.png" alt="VALPARK Logo" id="panelLogo" style="display: none;">
+    </div>
+
+    <div id="map"></div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="locateMe()" title="Mi ubicación"><img src="https://api.iconify.design/mdi/crosshairs-gps.svg?color=%23667eea" alt="" class="control-icon"></button>
+        <button class="control-btn" onclick="showRoutePanel()" title="Calcular ruta"><img src="https://api.iconify.design/mdi/car.svg?color=%23667eea" alt="" class="control-icon"></button>
+        <button class="control-btn" onclick="showAccessibleParking()" title="Aparcamiento accesible"><img src="https://api.iconify.design/mdi/wheelchair-accessibility.svg?color=%23667eea" alt="" class="control-icon"></button>
+        <button class="control-btn" onclick="map.zoomIn()" title="Zoom +"><img src="https://api.iconify.design/mdi/plus.svg?color=%23667eea" alt="" class="control-icon"></button>
+        <button class="control-btn" onclick="map.zoomOut()" title="Zoom -"><img src="https://api.iconify.design/mdi/minus.svg?color=%23667eea" alt="" class="control-icon"></button>
+    </div>
+
+    <button class="accessibility-btn" onclick="toggleAccessibility()" title="Modo Alto Contraste"><img src="https://api.iconify.design/mdi/eye.svg?color=white" alt="" class="control-icon"></button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script>
+        // Verificar sesión al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('appTitle').innerHTML = '<img src="IMG/logo.png" alt="VALPARK Logo"> VALPARK';
+            document.getElementById('appSubtitle').textContent = 'Encuentra tu sitio';
+            document.title = 'VALPARK - Encuentra tu sitio';
+            
+            // Verificar si hay usuario logueado
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                document.getElementById('userNameDisplay').textContent = userName;
+                document.getElementById('userInfo').style.display = 'block';
+            }
+            // COMENTADO TEMPORALMENTE PARA PRUEBAS - Descomentar después
+            /*
+            else {
+                // Redirigir a login si no hay sesión
+                window.location.href = '../index.html';
+            }
+            */
+        });
+
+        function logout() {
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail');
+            window.location.href = '../index.html';
+        }
+
+        // Función para colapsar/expandir el panel
+        function toggleInfoPanel() {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('panelContent');
+            const logo = document.getElementById('panelLogo');
+            const arrow = document.getElementById('toggleArrow');
+            
+            panel.classList.toggle('collapsed');
+            
+            if (panel.classList.contains('collapsed')) {
+                content.style.display = 'none';
+                logo.style.display = 'block';
+                arrow.textContent = '▶';
+            } else {
+                content.style.display = 'block';
+                logo.style.display = 'none';
+                arrow.textContent = '◀';
+            }
+        }
+
+        // Función para limpiar búsqueda
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            // Si tienes algún marcador de búsqueda, límpialo aquí
+            if (window.searchMarker) {
+                map.removeLayer(window.searchMarker);
+                window.searchMarker = null;
+            }
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
